@@ -48,7 +48,6 @@ $create_id_rsa = <<CREATE_id_rsa
   if [ ! -f /home/vagrant/.ssh/id_rsa ]; then
     echo create id_rsa...
     ssh-keygen -t rsa -N bebop -C bebop -f /home/vagrant/.ssh/id_rsa
-    scp /home/vagrant/.ssh/id_rsa.pub 192.168.33.12:/home/vagrant/.ssh/
   else
     echo skip create id_rsa...
   fi
