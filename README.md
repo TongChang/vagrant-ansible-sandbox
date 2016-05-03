@@ -5,15 +5,15 @@
 
 おそらく、しばらく遊んだらいらない子になると思うので、いつか消えます。
 
-## 目指すもの
+## 作ったもの
 
 * managerゲスト
   * 構成管理サーバー
     * 他のゲストをプロビジョンするサーバー
   * プロビジョニングを実装するために、vimが要る
-    * .vimrcは自分のやつでいいや
-    * neobundleがいるなぁ
+    * .vimrcは自分のやつ
   * ansible使う想定なので、鍵が要る
+    * 鍵は入れたが、ゲストには置いてない
 
 * rpi_1ゲスト
   * とりあえずラズパイを想定
@@ -36,6 +36,28 @@ see [Vagrant by HashiCorp](https://www.vagrantup.com/)
 ```
  $ cd vagrant-ansible-sandbox
  $ vagrant up
+```
+
+### ssh to manager
+
+```
+ $ vagrant ssh-config >> ~/.ssh/config
+ $ ssh manager
+```
+
+### send public key to target
+
+```
+ $ scp ~/.ssh/id_rsa.pub 192.168.33.12:~/
+ $ ssh 192.168.33.12
+ $ cat ~/id_rsa.pub >> ~/.ssh/authorized_keys
+```
+
+### test ansible ping
+```
+ $ cd ~
+ $ echo "192.168.33.12" > hosts
+ $ ansible 192.168.33.12 -i hosts -m ping
 ```
 
 and use something to you want...
