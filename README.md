@@ -1,7 +1,6 @@
-# vagrant-ansible-sandbox
+# vagrant-sandbox
 
-これは、とんちゃんがvagrantとansibleで遊ぶためのリポジトリです。  
-※ansibleじゃなくても、provisioningのsandboxにすればいいじゃんって正直思った。
+これは、とんちゃんがvagrantでVMを作って遊ぶためのリポジトリです。  
 
 おそらく、しばらく遊んだらいらない子になると思うので、いつか消えます。
 
@@ -13,11 +12,12 @@
   * プロビジョニングを実装するために、vimが要る
     * .vimrcは自分のやつ
   * ansible使う想定なので、鍵が要る
-    * 鍵は入れたが、ゲストには置いてない
+    * 秘密鍵と公開鍵を用意しておく
 
 * rpi_1ゲスト
   * とりあえずラズパイを想定
     * 仮想上で動作させるわけではないので、ハード要件はラズパイには寄せてません。
+  * 公開鍵をmanagerゲストからもらっておく
 
 ## How To Use
 
@@ -43,14 +43,6 @@ see [Vagrant by HashiCorp](https://www.vagrantup.com/)
 ```
  $ vagrant ssh-config >> ~/.ssh/config
  $ ssh manager
-```
-
-### send public key to target
-
-```
- $ scp ~/.ssh/id_rsa.pub 192.168.33.12:~/
- $ ssh 192.168.33.12
- $ cat ~/id_rsa.pub >> ~/.ssh/authorized_keys
 ```
 
 ### test ansible ping
