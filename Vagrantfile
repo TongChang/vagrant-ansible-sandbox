@@ -55,7 +55,8 @@ $create_id_rsa = <<CREATE_id_rsa
 CREATE_id_rsa
 
 $setup_bashrc = <<SETUP_Bashrc
-IS_SETUPED=`grep "set -o vi" /home/vagrant/.bashrc | wc -l`
+  IS_SETUPED=`grep "set -o vi" /home/vagrant/.bashrc | wc -l`
+
   if [ ! 1 -eq ${IS_SETUPED} ]; then
     echo setup bashrc...
     echo "set -o vi" >> /home/vagrant/.bashrc
@@ -63,14 +64,33 @@ IS_SETUPED=`grep "set -o vi" /home/vagrant/.bashrc | wc -l`
     echo skip setup bashrc...
   fi
 SETUP_Bashrc
+
+$setup_id_rsa_pub = <<SETUP_id_rsa_pub
+  if ! dpkg -l sshpass; then
+    echo install sshpass...
+    apt-get install sshpass -y
+  else
+    echo skip install sshpass...
+  fi
+
+  sshpass -p "vagrant" scp  -oStrictHostKeyChecking=no vagrant@192.168.33.11:/home/vagrant/.ssh/id_rsa.pub /home/vagrant/manager_pub
+  phrase=`cat /home/vagrant/manager_pub`
+  IS_SETUPED=`grep "${phrase}" /home/vagrant/.ssh/authorized_keys | wc -l`
+
+  if [ ! 1 -eq ${IS_SETUPED} ]; then
+    echo setup id_rsa_pub...
+    cat /home/vagrant/manager_pub >> /home/vagrant/.ssh/authorized_keys
+  else
+    echo skip setup id_rsa_pub...
+  fi
+
+  rm -f /home/vagrant/manager_pub
+
+SETUP_id_rsa_pub
+
 Vagrant.configure(2) do |config|
 
   config.vm.box = "ubuntu/trusty32"
-
-  config.vm.define :rpi_1 do |node|
-    node.vm.network :forwarded_port, guest: 22, host: 2011, id: "ssh"
-    node.vm.network :private_network, ip: "192.168.33.12"
-  end
 
   config.vm.define :manager do |node|
     node.vm.network :forwarded_port, guest: 22, host: 2001, id: "ssh"
@@ -96,6 +116,15 @@ Vagrant.configure(2) do |config|
       s.inline = $setup_bashrc
     end
 
+  end
+
+  config.vm.define :rpi_1 do |node|
+    node.vm.network :forwarded_port, guest: 22, host: 2011, id: "ssh"
+    node.vm.network :private_network, ip: "192.168.33.12"
+
+    node.vm.provision "rpi_1-get-id_rsa-pub", type: "shell" do |s|
+      s.inline = $setup_id_rsa_pub
+    end
   end
 
 end
