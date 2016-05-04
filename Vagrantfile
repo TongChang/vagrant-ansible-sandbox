@@ -48,11 +48,21 @@ $create_id_rsa = <<CREATE_id_rsa
   if [ ! -f /home/vagrant/.ssh/id_rsa ]; then
     echo create id_rsa...
     ssh-keygen -t rsa -N bebop -C bebop -f /home/vagrant/.ssh/id_rsa
+    chown vagrant:vagrant /home/vagrant/.ssh/id_rsa
   else
     echo skip create id_rsa...
   fi
 CREATE_id_rsa
 
+$setup_bashrc = <<SETUP_Bashrc
+IS_SETUPED=`grep "set -o vi" /home/vagrant/.bashrc | wc -l`
+  if [ ! 1 -eq ${IS_SETUPED} ]; then
+    echo setup bashrc...
+    echo "set -o vi" >> /home/vagrant/.bashrc
+  else
+    echo skip setup bashrc...
+  fi
+SETUP_Bashrc
 Vagrant.configure(2) do |config|
 
   config.vm.box = "ubuntu/trusty32"
@@ -81,6 +91,11 @@ Vagrant.configure(2) do |config|
     node.vm.provision "manager-id_rsa", type: "shell" do |s|
       s.inline = $create_id_rsa
     end
+
+    node.vm.provision "manager-bashrc", type: "shell" do |s|
+      s.inline = $setup_bashrc
+    end
+
   end
 
 end
